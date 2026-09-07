@@ -162,3 +162,65 @@ describe('PodsLogsViewer clear logs button', () => {
         expect(mockCopyLogsButton).toHaveBeenLastCalledWith(logsFixture);
     });
 });
+
+});
+
+describe('PodHighlightButton disabled state', () => {
+    let container: HTMLDivElement;
+    let root: Root;
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        container = document.createElement('div');
+        document.body.appendChild(container);
+        root = createRoot(container);
+    });
+
+    afterEach(() => {
+        act(() => {
+            root.unmount();
+        });
+        container.remove();
+    });
+
+    it('shows disabled button with informative tooltip when there is only one pod', () => {
+        const mockSetSelectedPod = jest.fn();
+        act(() => {
+            root.render(
+                React.createElement(PodHighlightButton, {
+                    selectedPod: null,
+                    setSelectedPod: mockSetSelectedPod,
+                    pods: ['single-pod'],
+                    darkMode: false
+                })
+            );
+        });
+
+        const button = container.querySelector('button');
+        expect(button).toBeTruthy();
+        expect(button).toBeDisabled();
+        // Check that the tooltip mentions multiple pods
+        expect(container.querySelector('[data-tooltip-content]')?.getAttribute('data-tooltip-content'))
+            .toContain('multiple pods');
+    });
+
+    it('shows enabled button with instruction tooltip when there are multiple pods', () => {
+        const mockSetSelectedPod = jest.fn();
+        act(() => {
+            root.render(
+                React.createElement(PodHighlightButton, {
+                    selectedPod: null,
+                    setSelectedPod: mockSetSelectedPod,
+                    pods: ['pod1', 'pod2', 'pod3'],
+                    darkMode: false
+                })
+            );
+        });
+
+        const button = container.querySelector('button');
+        expect(button).toBeTruthy();
+        expect(button).not.toBeDisabled();
+        expect(container.querySelector('[data-tooltip-content]')?.getAttribute('data-tooltip-content'))
+            .toContain('Select a pod');
+    });
+});
